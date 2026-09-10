@@ -42,6 +42,7 @@
         .status { color: var(--muted); font: 12px "Yu Gothic", sans-serif; }
         label { display: block; margin-bottom: 8px; color: var(--muted); font: 700 12px "Yu Gothic", sans-serif; letter-spacing: .08em; }
         .url-row { display: flex; gap: 10px; margin-bottom: 26px; }
+        .name-field { margin-bottom: 26px; }
         input { width: 100%; min-width: 0; border: 1px solid var(--line); border-radius: 4px; padding: 13px 14px; color: var(--ink); background: #fff; font: 14px Consolas, monospace; }
         button { border: 0; border-radius: 4px; padding: 12px 16px; cursor: pointer; color: #fff; background: var(--teal); font: 700 13px "Yu Gothic", sans-serif; transition: transform .18s ease, background .18s ease; }
         button:hover { transform: translateY(-2px); background: #0d5753; }
@@ -88,12 +89,16 @@
                     <input id="workerUrl" type="url" value="https://workers-backend.s02kenta14.workers.dev" spellcheck="false">
                     <button id="saveUrl" type="button">保存</button>
                 </div>
+                <div class="name-field">
+                    <label for="helloName">HELLO NAME</label>
+                    <input id="helloName" type="text" value="山田" placeholder="例: 杉浦健太">
+                </div>
                 <div class="endpoint-list">
                     <button class="endpoint" data-path="/api" type="button"><strong>API status</strong><span>GET /api</span></button>
                     <button class="endpoint" data-path="/api/course" type="button"><strong>Course</strong><span>GET /api/course</span></button>
                     <button class="endpoint" data-path="/api/fortune" type="button"><strong>Fortune</strong><span>GET /api/fortune</span></button>
                     <button class="endpoint" data-path="/api/events" type="button"><strong>Events</strong><span>GET /api/events</span></button>
-                    <button class="endpoint" data-path="/api/hello?name=山田" type="button"><strong>Hello</strong><span>GET /api/hello?name=...</span></button>
+                    <button class="endpoint" data-endpoint="hello" type="button"><strong>Hello</strong><span>GET /api/hello?name=...</span></button>
                 </div>
             </div>
 
@@ -114,6 +119,7 @@
         const result = document.querySelector("#result");
         const requestStatus = document.querySelector("#requestStatus");
         const responseStatus = document.querySelector("#responseStatus");
+        const helloNameInput = document.querySelector("#helloName");
 
         const savedWorkerUrl = localStorage.getItem("worker-base-url-v2");
         workerUrlInput.value = savedWorkerUrl || workerUrlInput.value;
@@ -126,7 +132,10 @@
         }
 
         async function requestEndpoint(button) {
-            const url = `${workerUrlInput.value.trim().replace(/\/$/, "")}${button.dataset.path}`;
+            const endpointPath = button.dataset.endpoint === "hello"
+                ? `/api/hello?name=${encodeURIComponent(helloNameInput.value.trim())}`
+                : button.dataset.path;
+            const url = `${workerUrlInput.value.trim().replace(/\/$/, "")}${endpointPath}`;
             document.querySelectorAll(".endpoint").forEach((item) => { item.disabled = true; });
             requestStatus.textContent = "リクエスト中";
             responseStatus.textContent = "--";

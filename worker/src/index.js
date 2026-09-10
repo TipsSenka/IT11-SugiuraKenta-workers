@@ -78,7 +78,8 @@ export default {
 
     if (url.pathname === "/api/fortune") {
       const fortunes = ["大吉", "中吉", "小吉", "吉"];
-      const fortune = fortunes[new Date().getUTCDate() % fortunes.length];
+      const randomIndex = crypto.getRandomValues(new Uint32Array(1))[0] % fortunes.length;
+      const fortune = fortunes[randomIndex];
       return json({ fortune, message: "小さな一歩が、次の発見につながります。" }, 200, request, env);
     }
 
