@@ -3,18 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#f6f1e8">
-    <title>Senka API Console</title>
+    <meta name="theme-color" content="#0b1220">
+    <title>Senka API 管理画面</title>
     <style>
         :root {
-            --ink: #1e2a2f;
-            --muted: #68777a;
-            --paper: #f6f1e8;
-            --panel: #fffdf8;
-            --line: #d9d5cc;
-            --teal: #146b67;
-            --orange: #e17a45;
-            --shadow: 0 18px 50px rgba(30, 42, 47, 0.11);
+            --ink: #e8eef8;
+            --muted: #91a1b8;
+            --paper: #080e1a;
+            --panel: #111b2c;
+            --line: #263752;
+            --blue: #3b82f6;
+            --blue-bright: #60a5fa;
+            --black: #060a12;
+            --green: #45d19d;
+            --red: #fb7185;
+            --shadow: 0 18px 50px rgba(0, 0, 0, 0.28);
         }
 
         * { box-sizing: border-box; }
@@ -23,40 +26,57 @@
             margin: 0;
             min-width: 320px;
             color: var(--ink);
-            background:
-                radial-gradient(circle at 12% 10%, rgba(225, 122, 69, 0.14), transparent 26rem),
-                linear-gradient(135deg, #f6f1e8 0%, #edf4f0 100%);
-            font-family: Georgia, "Yu Mincho", "Hiragino Mincho ProN", serif;
+            background: radial-gradient(circle at 15% 0%, rgba(59, 130, 246, .16), transparent 30rem), linear-gradient(145deg, #0b1220, #060a12 70%);
+            font-family: "Yu Gothic", "Hiragino Kaku Gothic ProN", sans-serif;
         }
 
         .shell { width: min(1080px, calc(100% - 40px)); margin: 0 auto; padding: 42px 0 64px; }
         .masthead { display: flex; justify-content: space-between; gap: 24px; align-items: end; margin-bottom: 42px; }
-        .eyebrow { color: var(--orange); font: 700 12px/1.2 "Yu Gothic", sans-serif; letter-spacing: .16em; text-transform: uppercase; }
+        .eyebrow { color: var(--blue-bright); font: 700 12px/1.2 "Yu Gothic", sans-serif; letter-spacing: .16em; }
         h1 { max-width: 650px; margin: 10px 0 0; font-size: clamp(38px, 7vw, 76px); line-height: .98; letter-spacing: 0; }
         .intro { max-width: 310px; margin: 0; color: var(--muted); font: 15px/1.8 "Yu Gothic", sans-serif; }
         .console { display: grid; grid-template-columns: minmax(0, 1.08fr) minmax(300px, .92fr); gap: 22px; }
-        .panel { border: 1px solid rgba(30, 42, 47, .13); border-radius: 8px; background: rgba(255, 253, 248, .84); box-shadow: var(--shadow); }
+        .panel { border: 1px solid var(--line); border-radius: 8px; background: rgba(17, 27, 44, .9); box-shadow: var(--shadow); }
         .control-panel { padding: 28px; }
         .panel-heading { display: flex; justify-content: space-between; gap: 16px; align-items: baseline; margin-bottom: 24px; }
         h2 { margin: 0; font-size: 22px; }
         .status { color: var(--muted); font: 12px "Yu Gothic", sans-serif; }
+        .monitor { margin-bottom: 22px; }
+        .monitor-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; }
+        .monitor-card { min-height: 102px; padding: 16px; border: 1px solid var(--line); border-radius: 6px; background: #0e1728; }
+        .monitor-card strong { display: block; margin-bottom: 14px; font-size: 14px; }
+        .monitor-state { display: flex; justify-content: space-between; gap: 8px; align-items: center; color: var(--muted); font-size: 12px; }
+        .monitor-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); }
+        .monitor-card.ok .monitor-dot { background: var(--green); box-shadow: 0 0 12px var(--green); }
+        .monitor-card.error .monitor-dot { background: var(--red); box-shadow: 0 0 12px var(--red); }
+        .monitor-card.ok .monitor-state { color: var(--green); }
+        .monitor-card.error .monitor-state { color: var(--red); }
         label { display: block; margin-bottom: 8px; color: var(--muted); font: 700 12px "Yu Gothic", sans-serif; letter-spacing: .08em; }
         .url-row { display: flex; gap: 10px; margin-bottom: 26px; }
         .name-field { margin-bottom: 26px; }
-        input { width: 100%; min-width: 0; border: 1px solid var(--line); border-radius: 4px; padding: 13px 14px; color: var(--ink); background: #fff; font: 14px Consolas, monospace; }
-        button { border: 0; border-radius: 4px; padding: 12px 16px; cursor: pointer; color: #fff; background: var(--teal); font: 700 13px "Yu Gothic", sans-serif; transition: transform .18s ease, background .18s ease; }
-        button:hover { transform: translateY(-2px); background: #0d5753; }
+        input { width: 100%; min-width: 0; border: 1px solid var(--line); border-radius: 4px; padding: 13px 14px; color: var(--ink); background: #0a1220; font: 14px Consolas, monospace; }
+        button { border: 0; border-radius: 4px; padding: 12px 16px; cursor: pointer; color: #fff; background: var(--blue); font: 700 13px "Yu Gothic", sans-serif; transition: transform .18s ease, background .18s ease; }
+        button:hover { transform: translateY(-2px); background: #2563eb; }
         button:disabled { cursor: wait; opacity: .55; transform: none; }
         .endpoint-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
-        .endpoint { display: flex; flex-direction: column; align-items: start; min-height: 112px; padding: 16px; text-align: left; background: #e9f1ed; }
-        .endpoint strong { margin-bottom: 9px; color: var(--ink); font: 700 17px Georgia, serif; }
+        .endpoint { display: flex; flex-direction: column; align-items: start; min-height: 112px; padding: 16px; text-align: left; background: #182943; }
+        .endpoint strong { margin-bottom: 9px; color: var(--ink); font-size: 17px; }
         .endpoint span { color: var(--muted); font: 12px/1.5 Consolas, monospace; }
-        .endpoint:hover { background: #d9ebe3; }
-        .result-panel { display: flex; flex-direction: column; min-height: 410px; padding: 28px; background: var(--ink); color: #f7f3eb; }
-        .result-panel h2 { color: #f7f3eb; }
-        .result-panel .status { color: #afc0bb; }
-        pre { flex: 1; overflow: auto; margin: 0; padding: 20px; border: 1px solid rgba(255,255,255,.13); border-radius: 4px; background: #152024; color: #dce8d9; font: 13px/1.7 Consolas, monospace; white-space: pre-wrap; word-break: break-word; }
-        .hint { margin: 20px 0 0; color: #afc0bb; font: 12px/1.6 "Yu Gothic", sans-serif; }
+        .endpoint:hover { background: #20385d; }
+        .result-panel { display: flex; flex-direction: column; min-height: 410px; padding: 28px; background: #080d17; color: var(--ink); }
+        .result-panel h2 { color: var(--ink); }
+        .result-panel .status { color: var(--muted); }
+        pre { flex: 1; overflow: auto; margin: 0; padding: 20px; border: 1px solid var(--line); border-radius: 4px; background: var(--black); color: #bfdbfe; font: 13px/1.7 Consolas, monospace; white-space: pre-wrap; word-break: break-word; }
+        .hint { margin: 20px 0 0; color: var(--muted); font: 12px/1.6 "Yu Gothic", sans-serif; }
+        .events-panel { margin-top: 22px; padding: 28px; }
+        .event-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+        .event-card { padding: 20px; border: 1px solid var(--line); border-radius: 6px; background: #0d1728; }
+        .event-card h3 { margin: 0 0 10px; font-size: 18px; }
+        .event-meta { margin: 0 0 18px; color: var(--muted); font-size: 13px; line-height: 1.8; }
+        .event-form { display: grid; grid-template-columns: 1fr 1fr auto; gap: 8px; align-items: end; }
+        .event-form label { margin: 0; }
+        .event-form button { white-space: nowrap; }
+        .registration-message { min-height: 20px; margin: 16px 0 0; color: var(--green); font-size: 13px; }
         footer { margin-top: 22px; color: var(--muted); font: 12px "Yu Gothic", sans-serif; }
         @media (max-width: 760px) {
             .shell { width: min(100% - 28px, 560px); padding-top: 28px; }
@@ -65,7 +85,10 @@
             .control-panel { margin-bottom: 18px; }
             .url-row { flex-direction: column; }
             .url-row button { width: 100%; }
+            .monitor-grid, .event-list { grid-template-columns: 1fr 1fr; }
+            .event-form { grid-template-columns: 1fr; }
         }
+        @media (max-width: 480px) { .monitor-grid, .event-list { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
@@ -73,45 +96,69 @@
         <header class="masthead">
             <div>
                 <div class="eyebrow">Cloudflare Workers / Pages</div>
-                <h1>Senka API<br>Console</h1>
+                <h1>Senka API<br>管理画面</h1>
             </div>
-            <p class="intro">Worker の接続先を確認しながら、公開 API のレスポンスをすぐに検証できます。</p>
+            <p class="intro">API の状態を確認し、開催予定のイベントへ参加登録できます。</p>
         </header>
+
+        <section class="panel monitor" aria-label="API状態監視">
+            <div class="control-panel">
+                <div class="panel-heading">
+                    <h2>API状態監視</h2>
+                    <button id="refreshMonitor" type="button">再確認</button>
+                </div>
+                <div class="monitor-grid">
+                    <div class="monitor-card" data-monitor-path="/api"><strong>基本状態</strong><div class="monitor-state"><span class="monitor-label">未確認</span><span class="monitor-dot"></span></div></div>
+                    <div class="monitor-card" data-monitor-path="/api/course"><strong>講座一覧</strong><div class="monitor-state"><span class="monitor-label">未確認</span><span class="monitor-dot"></span></div></div>
+                    <div class="monitor-card" data-monitor-path="/api/hello?name=確認"><strong>挨拶</strong><div class="monitor-state"><span class="monitor-label">未確認</span><span class="monitor-dot"></span></div></div>
+                    <div class="monitor-card" data-monitor-path="/api/fortune"><strong>おみくじ</strong><div class="monitor-state"><span class="monitor-label">未確認</span><span class="monitor-dot"></span></div></div>
+                    <div class="monitor-card" data-monitor-path="/api/events"><strong>イベント</strong><div class="monitor-state"><span class="monitor-label">未確認</span><span class="monitor-dot"></span></div></div>
+                </div>
+            </div>
+        </section>
 
         <section class="console" aria-label="API検証コンソール">
             <div class="panel control-panel">
                 <div class="panel-heading">
-                    <h2>エンドポイント</h2>
+                    <h2>APIを試す</h2>
                     <span class="status" id="requestStatus">待機中</span>
                 </div>
-                <label for="workerUrl">WORKER BASE URL</label>
+                <label for="workerUrl">Worker 接続先</label>
                 <div class="url-row">
                     <input id="workerUrl" type="url" value="https://workers-backend.s02kenta14.workers.dev" spellcheck="false">
-                    <button id="saveUrl" type="button">保存</button>
+                    <button id="saveUrl" type="button">接続先を保存</button>
                 </div>
                 <div class="name-field">
-                    <label for="helloName">HELLO NAME</label>
+                    <label for="helloName">挨拶する名前</label>
                     <input id="helloName" type="text" value="山田" placeholder="例: 山田" spellcheck="false">
                 </div>
                 <div class="endpoint-list">
-                    <button class="endpoint" data-path="/api" type="button"><strong>API status</strong><span>GET /api</span></button>
-                    <button class="endpoint" data-path="/api/course" type="button"><strong>Course</strong><span>GET /api/course</span></button>
-                    <button class="endpoint" data-path="/api/fortune" type="button"><strong>Fortune</strong><span>GET /api/fortune</span></button>
-                    <button class="endpoint" data-path="/api/events" type="button"><strong>Events</strong><span>GET /api/events</span></button>
-                    <button class="endpoint" data-endpoint="hello" type="button"><strong>Hello</strong><span>GET /api/hello?name=...</span></button>
+                    <button class="endpoint" data-path="/api" type="button"><strong>基本状態</strong><span>GET /api</span></button>
+                    <button class="endpoint" data-path="/api/course" type="button"><strong>講座一覧</strong><span>GET /api/course</span></button>
+                    <button class="endpoint" data-path="/api/fortune" type="button"><strong>おみくじ</strong><span>GET /api/fortune</span></button>
+                    <button class="endpoint" data-path="/api/events" type="button"><strong>イベント</strong><span>GET /api/events</span></button>
+                    <button class="endpoint" data-endpoint="hello" type="button"><strong>挨拶</strong><span>GET /api/hello?name=...</span></button>
                 </div>
             </div>
 
             <div class="panel result-panel">
                 <div class="panel-heading">
-                    <h2>Response</h2>
+                    <h2>応答結果</h2>
                     <span class="status" id="responseStatus">--</span>
                 </div>
                 <pre id="result" aria-live="polite">エンドポイントを選択してください。</pre>
                 <p class="hint">レスポンスは JSON として整形して表示されます。</p>
             </div>
         </section>
-        <footer>Pages が Worker の API を呼び出し、結果をこの画面に表示します。</footer>
+        <section class="panel events-panel" aria-label="イベント参加登録">
+            <div class="panel-heading">
+                <h2>イベント参加登録</h2>
+                <span class="status" id="eventStatus">読み込み中</span>
+            </div>
+            <div class="event-list" id="eventList"></div>
+            <p class="registration-message" id="registrationMessage" aria-live="polite"></p>
+        </section>
+        <footer>Pages が Worker の API を呼び出し、状態と登録結果を表示します。</footer>
     </main>
 
     <script>
@@ -120,6 +167,9 @@
         const requestStatus = document.querySelector("#requestStatus");
         const responseStatus = document.querySelector("#responseStatus");
         const helloNameInput = document.querySelector("#helloName");
+        const eventList = document.querySelector("#eventList");
+        const eventStatus = document.querySelector("#eventStatus");
+        const registrationMessage = document.querySelector("#registrationMessage");
 
         const savedWorkerUrl = localStorage.getItem("worker-base-url-v2");
         workerUrlInput.value = savedWorkerUrl || workerUrlInput.value;
@@ -129,13 +179,105 @@
             workerUrlInput.value = value;
             localStorage.setItem("worker-base-url-v2", value);
             requestStatus.textContent = "接続先を保存しました";
+            refreshMonitor();
+            loadEvents();
+        }
+
+        function workerBaseUrl() {
+            return workerUrlInput.value.trim().replace(/\/$/, "");
+        }
+
+        async function checkService(card) {
+            const startedAt = performance.now();
+            const label = card.querySelector(".monitor-label");
+            card.classList.remove("ok", "error");
+            label.textContent = "確認中";
+
+            try {
+                const response = await fetch(`${workerBaseUrl()}${card.dataset.monitorPath}`);
+                const elapsed = Math.round(performance.now() - startedAt);
+                card.classList.add(response.ok ? "ok" : "error");
+                label.textContent = `${response.status} / ${elapsed}ms`;
+            } catch {
+                card.classList.add("error");
+                label.textContent = "接続失敗";
+            }
+        }
+
+        function refreshMonitor() {
+            requestStatus.textContent = "状態を確認中";
+            const checks = [...document.querySelectorAll(".monitor-card")].map(checkService);
+            Promise.all(checks).then(() => { requestStatus.textContent = "状態確認完了"; });
+        }
+
+        function renderEvents(items) {
+            eventList.replaceChildren();
+            items.forEach((event) => {
+                const card = document.createElement("article");
+                card.className = "event-card";
+                const date = new Date(`${event.date}T00:00:00`).toLocaleDateString("ja-JP", {
+                    year: "numeric", month: "long", day: "numeric", weekday: "short",
+                });
+                card.innerHTML = `
+                    <h3>${event.title}</h3>
+                    <p class="event-meta">${date}<br>${event.place} / 定員 ${event.capacity}名</p>
+                    <form class="event-form" data-event-id="${event.id}">
+                        <label>お名前<input name="name" type="text" required placeholder="お名前"></label>
+                        <label>メール<input name="email" type="email" required placeholder="name@example.com"></label>
+                        <button type="submit">参加登録</button>
+                    </form>`;
+                card.querySelector("form").addEventListener("submit", (submitEvent) => registerEvent(submitEvent, event));
+                eventList.append(card);
+            });
+        }
+
+        async function loadEvents() {
+            eventStatus.textContent = "読み込み中";
+            try {
+                const response = await fetch(`${workerBaseUrl()}/api/events`);
+                if (!response.ok) throw new Error("イベントを取得できませんでした");
+                const body = await response.json();
+                renderEvents(body.events || []);
+                eventStatus.textContent = `${body.events.length}件の開催予定`;
+            } catch {
+                eventList.textContent = "イベントを読み込めませんでした。接続先を確認してください。";
+                eventStatus.textContent = "読み込み失敗";
+            }
+        }
+
+        async function registerEvent(submitEvent, event) {
+            submitEvent.preventDefault();
+            const form = submitEvent.currentTarget;
+            const button = form.querySelector("button");
+            const formData = new FormData(form);
+            button.disabled = true;
+            registrationMessage.textContent = "登録処理中...";
+
+            try {
+                const response = await fetch(`${workerBaseUrl()}/api/events/${event.id}/register`, {
+                    method: "POST",
+                    headers: { "content-type": "application/json" },
+                    body: JSON.stringify({ name: formData.get("name"), email: formData.get("email") }),
+                });
+                const body = await response.json();
+                if (!response.ok) throw new Error(body.error || "登録できませんでした");
+                const history = JSON.parse(localStorage.getItem("event-registration-history") || "[]");
+                history.push({ ...body, registeredAt: new Date().toISOString() });
+                localStorage.setItem("event-registration-history", JSON.stringify(history));
+                registrationMessage.textContent = `${body.eventTitle}への参加登録を受け付けました。`;
+                form.reset();
+            } catch (error) {
+                registrationMessage.textContent = error.message;
+            } finally {
+                button.disabled = false;
+            }
         }
 
         async function requestEndpoint(button) {
             const endpointPath = button.dataset.endpoint === "hello"
                 ? `/api/hello?name=${encodeURIComponent(helloNameInput.value.trim())}`
                 : button.dataset.path;
-            const url = `${workerUrlInput.value.trim().replace(/\/$/, "")}${endpointPath}`;
+            const url = `${workerBaseUrl()}${endpointPath}`;
             document.querySelectorAll(".endpoint").forEach((item) => { item.disabled = true; });
             requestStatus.textContent = "リクエスト中";
             responseStatus.textContent = "--";
@@ -157,9 +299,12 @@
         }
 
         document.querySelector("#saveUrl").addEventListener("click", setWorkerUrl);
+        document.querySelector("#refreshMonitor").addEventListener("click", refreshMonitor);
         document.querySelectorAll(".endpoint").forEach((button) => {
             button.addEventListener("click", () => requestEndpoint(button));
         });
+        refreshMonitor();
+        loadEvents();
     </script>
 </body>
 </html>

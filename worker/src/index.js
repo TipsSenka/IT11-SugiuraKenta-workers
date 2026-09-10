@@ -14,8 +14,8 @@ const courses = [
 ];
 
 const events = [
-  { id: 1, title: "Workers ハンズオン", date: "2026-09-18", place: "オンライン" },
-  { id: 2, title: "Pages デプロイ相談会", date: "2026-09-25", place: "専科ラボ" },
+  { id: 1, title: "Workers ハンズオン", date: "2026-09-18", place: "オンライン", capacity: 20 },
+  { id: 2, title: "Pages デプロイ相談会", date: "2026-09-25", place: "専科ラボ", capacity: 12 },
 ];
 
 function getAllowedOrigin(request, env) {
@@ -30,7 +30,7 @@ function json(data, status, request, env) {
     headers: {
       "content-type": "application/json; charset=UTF-8",
       "access-control-allow-origin": getAllowedOrigin(request, env),
-      "access-control-allow-methods": "GET, OPTIONS",
+      "access-control-allow-methods": "GET, POST, OPTIONS",
       "access-control-allow-headers": "Content-Type",
       "cache-control": "no-store",
     },
@@ -46,10 +46,41 @@ export default {
         status: 204,
         headers: {
           "access-control-allow-origin": getAllowedOrigin(request, env),
-          "access-control-allow-methods": "GET, OPTIONS",
+          "access-control-allow-methods": "GET, POST, OPTIONS",
           "access-control-allow-headers": "Content-Type",
         },
       });
+    }
+
+    if (request.method === "POST" && url.pathname.match(/^\/api\/events\/\d+\/register$/)) {
+      const eventId = Number(url.pathname.split("/")[3]);
+      const event = events.find((item) => item.id === eventId);
+
+      if (!event) {
+        return json({ error: "指定されたイベントが見つかりません" }, 404, request, env);
+      }
+
+      let registration;
+      try {
+        registration = await request.json();
+      } catch {
+        return json({ error: "登録データの形式が正しくありません" }, 400, request, env);
+      }
+
+      const name = String(registration.name || "").trim();
+      const email = String(registration.email || "").trim();
+      if (!name || !/^\S+@\S+\.\S+$/.test(email)) {
+        return json({ error: "名前と有効なメールアドレスを入力してください" }, 400, request, env);
+      }
+
+      return json({
+        registrationId: crypto.randomUUID(),
+        eventId,
+        eventTitle: event.title,
+        name,
+        email,
+        message: "参加登録を受け付けました",
+      }, 201, request, env);
     }
 
     if (request.method !== "GET") {
