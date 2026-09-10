@@ -85,7 +85,7 @@
                 </div>
                 <label for="workerUrl">WORKER BASE URL</label>
                 <div class="url-row">
-                    <input id="workerUrl" type="url" value="https://senka-api.takahashi-masa.workers.dev" spellcheck="false">
+                    <input id="workerUrl" type="url" value="https://workers-backend.s02kenta14.workers.dev" spellcheck="false">
                     <button id="saveUrl" type="button">保存</button>
                 </div>
                 <div class="endpoint-list">
@@ -115,12 +115,13 @@
         const requestStatus = document.querySelector("#requestStatus");
         const responseStatus = document.querySelector("#responseStatus");
 
-        workerUrlInput.value = localStorage.getItem("worker-base-url") || workerUrlInput.value;
+        const savedWorkerUrl = localStorage.getItem("worker-base-url-v2");
+        workerUrlInput.value = savedWorkerUrl || workerUrlInput.value;
 
         function setWorkerUrl() {
             const value = workerUrlInput.value.trim().replace(/\/$/, "");
             workerUrlInput.value = value;
-            localStorage.setItem("worker-base-url", value);
+            localStorage.setItem("worker-base-url-v2", value);
             requestStatus.textContent = "接続先を保存しました";
         }
 
